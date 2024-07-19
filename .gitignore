@@ -32,6 +32,7 @@ platform_tools/android/apps/*/src/main/libs
 platform_tools/android/apps/*/*/src/main/libs
 platform_tools/android/apps/*.hprof
 platform_tools/android/apps/*/.externalNativeBuild
+/silver-build
 
 /mskps
 /skps
