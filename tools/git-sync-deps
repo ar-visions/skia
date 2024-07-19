@@ -133,7 +133,7 @@ def git_checkout_to_directory(git, repo, commithash, directory, shallow, verbose
   """
   if not os.path.isdir(directory):
     subprocess.check_call(
-      [git, 'clone', '--quiet', *(['--depth=1'] if shallow else []),
+      [git, 'clone', *(['--depth=1'] if shallow else []),
        '--no-checkout', repo, directory])
 
   if not is_git_toplevel(git, directory):
@@ -150,7 +150,7 @@ def git_checkout_to_directory(git, repo, commithash, directory, shallow, verbose
   with open(os.devnull, 'w') as devnull:
     # If this fails, we will fetch before trying again.  Don't spam user
     # with error infomation.
-    if 0 == subprocess.call([git, 'checkout', '--quiet', commithash],
+    if 0 == subprocess.call([git, 'checkout', commithash],
                             cwd=directory, stderr=devnull):
       # if this succeeds, skip slow `git fetch`.
       if verbose:
@@ -163,11 +163,11 @@ def git_checkout_to_directory(git, repo, commithash, directory, shallow, verbose
       [git, 'remote', 'set-url', 'origin', repo], cwd=directory)
 
   subprocess.check_call(
-    [git, 'fetch', '--quiet',
+    [git, 'fetch', 
      *(['--depth=1', repo, commithash] if shallow else [])],
     cwd=directory)
 
-  subprocess.check_call([git, 'checkout', '--quiet', commithash], cwd=directory)
+  subprocess.check_call([git, 'checkout', commithash], cwd=directory)
 
   if verbose:
     status(directory, commithash, True)  # Success.
@@ -256,7 +256,7 @@ def multithread(function, list_of_arg_lists):
 
 def main(argv):
   deps_file_path = os.environ.get('GIT_SYNC_DEPS_PATH', DEFAULT_DEPS_PATH)
-  verbose = not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
+  verbose = True # not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
   skip_emsdk = bool(os.environ.get('GIT_SYNC_DEPS_SKIP_EMSDK', False))
   shallow = not ('--deep' in argv)
 
