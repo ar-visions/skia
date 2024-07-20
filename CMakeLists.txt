@@ -5,6 +5,8 @@ project(skia)
 add_executable(bootstrap bootstrap.c)
 string(TOLOWER ${CMAKE_BUILD_TYPE} cfg_lower)
 
+set(SDK "native")
+
 # our build script can be defined here
 if(WIN32)
     # we copy the files in ninja.bat
@@ -16,7 +18,7 @@ if(WIN32)
 
     file(GLOB LIB_FILES ${CMAKE_CURRENT_SOURCE_DIR}/out/${cfg_lower}/*.lib)
     list(REMOVE_ITEM LIB_FILES ${CMAKE_CURRENT_SOURCE_DIR}/out/${cfg_lower}/zlib.lib)
-    install(FILES ${LIB_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+    #install(FILES ${LIB_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 else()
     add_custom_target(build
         COMMAND sh "build.sh" ${SDK} ${cfg_lower}
@@ -26,8 +28,17 @@ else()
     
     file(GLOB LIB_FILES ${CMAKE_CURRENT_SOURCE_DIR}/out/${cfg_lower}/*.a)
     list(REMOVE_ITEM LIB_FILES ${CMAKE_CURRENT_SOURCE_DIR}/out/${cfg_lower}/libzlib.a)
-    install(FILES ${LIB_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+    #install(FILES ${LIB_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 endif()
+
+set(ldir ${CMAKE_CURRENT_SOURCE_DIR}/out/${cfg_lower})
+
+install(CODE "
+    file(GLOB_RECURSE SKIA_LIBS \"${ldir}/*.so*\" \"${ldir}/*.a\" )
+    foreach(LIB \${SKIA_LIBS})
+        file(INSTALL \${LIB} DESTINATION \${CMAKE_INSTALL_PREFIX}/lib)
+    endforeach()
+")
 
 # without the trailing slash it puts 'include' inside of skia
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
@@ -39,5 +50,3 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/modules
 
 # the bootstrap (made with all) depends on build to run
 add_dependencies(bootstrap build)
-
-
